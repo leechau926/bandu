@@ -4,7 +4,7 @@ import re
 from multiprocessing import Pool
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
 }
 
 def get_page_max(url):
@@ -23,7 +23,10 @@ def get_book_down(book_id):
         cloud = soup.find(attrs={'class': 'fa fa-cloud-download'})
         book_panurl = re.findall("\'(.*?)\'", cloud.next_sibling['onclick'])[0]
         if len(soup.find(attrs={'class': 'links_middle'}).find_all('li')) == 2:
-            book_passwd = re.findall('：(\w+)', soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string)[0]
+            if soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string:
+                book_passwd = re.findall('：(\w+)', soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string)[0]
+            else:
+                book_passwd = 'see_url'
         else:
             book_passwd = ''
         downinfo = {
@@ -48,6 +51,12 @@ def get_book_info(url):
         description = cont.select('div')[1].string.strip()
         book_id = int(re.findall('(\d+)\.html', cont.a['href'])[0])
         book_url = 'https://www.bandubook.com/book/' + str(book_id) + '.html'
+        tag_area = cont.find(attrs={'class': 'tags visible-lg visible-md'})
+        tag_list = tag_area.find_all('a')
+        tag = ''
+        for item in tag_list:
+            tag = tag + item.string + ','
+        tag = tag.strip(',')
         downinfo = get_book_down(book_id)
         book_downurl = downinfo['panurl']
         book_passwd = downinfo['passwd']
@@ -58,10 +67,10 @@ def get_book_info(url):
         print('%s saved!' % title)
 
 if __name__ == '__main__':
-    index_url = 'https://www.bandubook.com/tag/%E5%8E%86%E5%8F%B2.html'
+    index_url = 'https://www.bandubook.com'
     page_max = get_page_max(index_url)
-    for i in range(1, page_max + 1):
-        page_url = index_url + '?page=' + str(i)
+    for i in range(29, page_max + 1):
+        page_url = index_url + '/book_' + str(i)
         get_book_info(page_url)
         print('Page %d/%d saved!' % (i, page_max))
         print('***************************************')
