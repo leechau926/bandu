@@ -11,7 +11,7 @@ def get_page_max(url):
     html = requests.get(url, headers=headers).content
     soup = BeautifulSoup(html, 'lxml')
     area = soup.find(attrs={'class': 'cl_page'})
-    page_max = int(re.findall('=(\d+)$', area.find(attrs={'class': 'last'}).a['href'])[0])
+    page_max = int(re.findall('_(\d+)\/', area.find(attrs={'class': 'last'}).a['href'])[0])
     print(page_max)
     return page_max
 
@@ -24,7 +24,7 @@ def get_book_down(book_id):
         book_panurl = re.findall("\'(.*?)\'", cloud.next_sibling['onclick'])[0]
         if len(soup.find(attrs={'class': 'links_middle'}).find_all('li')) == 2:
             if soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string:
-                book_passwd = re.findall('：(\w+)', soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string)[0]
+                book_passwd = re.findall('：(.*?)$', soup.find(attrs={'class': 'links_middle'}).find_all('li')[1].string)[0]
             else:
                 book_passwd = 'see_url'
         else:
@@ -60,8 +60,8 @@ def get_book_info(url):
         downinfo = get_book_down(book_id)
         book_downurl = downinfo['panurl']
         book_passwd = downinfo['passwd']
-        info_sql = """INSERT INTO book_info (title, author, description, book_id, book_url, book_downurl, book_passwd)
-        VALUES ('%s', '%s', '%s', '%d', '%s', '%s', '%s');\n""" % (title, author, description, book_id, book_url, book_downurl, book_passwd)
+        info_sql = """INSERT INTO book_info (title, author, description, tag, book_id, book_url, book_downurl, book_passwd)
+        VALUES ('%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s');\n""" % (title, author, description, tag, book_id, book_url, book_downurl, book_passwd)
         with open('book_url.sql', 'a', encoding='utf-8') as f:
             f.write(info_sql)
         print('%s saved!' % title)
@@ -69,7 +69,7 @@ def get_book_info(url):
 if __name__ == '__main__':
     index_url = 'https://www.bandubook.com'
     page_max = get_page_max(index_url)
-    for i in range(29, page_max + 1):
+    for i in range(1, page_max + 1):
         page_url = index_url + '/book_' + str(i)
         get_book_info(page_url)
         print('Page %d/%d saved!' % (i, page_max))
