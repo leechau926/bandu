@@ -46,9 +46,9 @@ def get_book_info(url):
     soup = BeautifulSoup(html, 'lxml')
     contents = soup.find_all(attrs={'class': 'recent-info'})
     for cont in contents:
-        title = cont.find('h3').string.replace("'", "`")
-        author = cont.find('h5').string
-        description = cont.select('div')[1].string.strip()
+        title = cont.find('h3').string.replace("'", '"')
+        author = cont.find('h5').string.replace("'", '"')
+        description = cont.select('div')[1].string.strip().replace("'", '"')
         book_id = int(re.findall('(\d+)\.html', cont.a['href'])[0])
         book_url = 'https://www.bandubook.com/book/' + str(book_id) + '.html'
         tag_area = cont.find(attrs={'class': 'tags visible-lg visible-md'})
