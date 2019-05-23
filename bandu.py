@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from multiprocessing import Pool
+import time
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
@@ -74,3 +74,5 @@ if __name__ == '__main__':
         get_book_info(page_url)
         print('Page %d/%d saved!' % (i, page_max))
         print('***************************************')
+        print('Sleep for 2 seconds')
+        time.sleep(2)
